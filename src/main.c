@@ -1,6 +1,6 @@
 #include <windows.h>
 #include "defines.h"
-#include <iostream>
+#include <stdio.h>
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -17,8 +17,12 @@ void Win32UpdateWindow(HDC device_context,
 }
 
 int32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
+    (void)hPrevInstance;
+    (void)pCmdLine;
+    
+
     char* name = "SoftRayTracer";
-    WNDCLASS wc = {};
+    WNDCLASS wc = {0};
     wc.lpfnWndProc = WindowProc;
     wc.hInstance = hInstance;
     wc.lpszClassName = name;
@@ -40,7 +44,7 @@ int32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLi
     
     bitmap_info.bmiHeader.biSize = sizeof(bitmap_info.bmiHeader);
     bitmap_info.bmiHeader.biWidth = width;
-    bitmap_info.bmiHeader.biHeight = -height; // for topdown upper-left pixel order
+    bitmap_info.bmiHeader.biHeight = -(int)height; // for topdown upper-left pixel order
     bitmap_info.bmiHeader.biPlanes = 1;
     bitmap_info.bmiHeader.biBitCount = 32;
     bitmap_info.bmiHeader.biCompression = BI_RGB;
@@ -66,7 +70,7 @@ int32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLi
         row += pitch;
     }
     
-    MSG msg = { };
+    MSG msg = {0};
     while (GetMessage(&msg, NULL, 0, 0) > 0) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
