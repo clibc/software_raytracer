@@ -1,6 +1,4 @@
-#include <windows.h>
-#include "defines.h"
-#include <stdio.h>
+#include "headers.h"
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -16,11 +14,25 @@ void Win32UpdateWindow(HDC device_context,
                    bitmap_memory, &bitmap_info, DIB_RGB_COLORS, SRCCOPY);
 }
 
+void TestCode() {
+    vec3 v = vec3_make(2);
+    vec3 v1 = vec3_mulf(v, 3.0f);
+    vec3 mulv = vec3_mulv(v, v1);
+    vec3 divf = vec3_mulf(mulv, 0.5f);
+
+    vec3 add = vec3_addv(divf, mulv);
+    add = vec3_subf(add, 10.0f);
+    add = vec3_addf(add, 9.0f);
+    
+    int a = 32;
+}
+
 int32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
     (void)hPrevInstance;
     (void)pCmdLine;
-    
 
+    TestCode();
+    
     char* name = "SoftRayTracer";
     WNDCLASS wc = {0};
     wc.lpfnWndProc = WindowProc;
