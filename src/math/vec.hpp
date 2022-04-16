@@ -45,10 +45,10 @@ float Vec3::SqrMagnitude() {
     return x*x + y*y + z*z;
 }
 
-Vec3 Vec3::operator+(float32 a) { return { x + a, y + a, z + a }; }
-Vec3 Vec3::operator-(float32 a) { return { x - a, y - a, z - a }; }
-Vec3 Vec3::operator*(float32 a) { return { x * a, y * a, z * a }; }
-Vec3 Vec3::operator/(float32 a) { return { x / a, y / a, z / a }; }
+Vec3 Vec3::operator+(float a) { return { x + a, y + a, z + a }; }
+Vec3 Vec3::operator-(float a) { return { x - a, y - a, z - a }; }
+Vec3 Vec3::operator*(float a) { return { x * a, y * a, z * a }; }
+Vec3 Vec3::operator/(float a) { return { x / a, y / a, z / a }; }
 Vec3 Vec3::operator+(Vec3 a) { return { x + a.x, y + a.y, z + a.z }; }
 Vec3 Vec3::operator-(Vec3 a) { return { x - a.x, y - a.y, z - a.z }; }
 Vec3 Vec3::operator*(Vec3 a) { return { x * a.x, y * a.y, z * a.z }; }
