@@ -1,7 +1,7 @@
 #pragma once
 
 struct Vec3 {
-    float32 x,y,z;
+    float x,y,z;
 
     float Dot(Vec3 a);
     Vec3  Cross(Vec3 a);
@@ -9,10 +9,10 @@ struct Vec3 {
     float Magnitude();
     float SqrMagnitude();
     
-    Vec3 operator+(float32 a);
-    Vec3 operator-(float32 a);
-    Vec3 operator*(float32 a);
-    Vec3 operator/(float32 a);
+    Vec3 operator+(float a);
+    Vec3 operator-(float a);
+    Vec3 operator*(float a);
+    Vec3 operator/(float a);
     Vec3 operator+(Vec3 a);
     Vec3 operator-(Vec3 a);
     Vec3 operator*(Vec3 a);
