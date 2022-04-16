@@ -1,31 +1,34 @@
 #include "headers.h"
 
+#define WINDOW_WIDTH  1280
+#define WINDOW_HEIGHT 720
+
 #define PUTPIXEL(r, g, b) {                     \
-        *pixel = (uint8)b;                      \
+        *pixel = (u8)b;                      \
         ++pixel;                                \
-        *pixel = (uint8)g;                      \
+        *pixel = (u8)g;                      \
         ++pixel;                                \
-        *pixel = (uint8)r;                      \
+        *pixel = (u8)r;                      \
         ++pixel;                                \
         *pixel = 0;                             \
         ++pixel;                                \
 }
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam); 
 
 static BITMAPINFO bitmap_info;
 static void* bitmap_memory;
 
 void Win32UpdateWindow(HDC device_context,
-                       int32 X, int32 Y,
-                       int32 width, int32 height) {
+                       s32 X, s32 Y,
+                       s32 width, s32 height) {
     StretchDIBits(device_context,
                    X, Y, width, height,
                    X, Y, width, height,
                    bitmap_memory, &bitmap_info, DIB_RGB_COLORS, SRCCOPY);
 }
 
-int32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
+s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
     (void)hPrevInstance;
     (void)pCmdLine;
 
@@ -36,7 +39,7 @@ int32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLi
     wc.lpszClassName = name;
     RegisterClass(&wc);
     
-    HWND hwnd = CreateWindowEx(0, name, name, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 800, 460, NULL, NULL, hInstance, NULL);
+    HWND hwnd = CreateWindowEx(0, name, name, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, WINDOW_WIDTH, WINDOW_HEIGHT, NULL, NULL, hInstance, NULL);
     
     if (hwnd == NULL) return 0;
     ShowWindow(hwnd, nCmdShow);
@@ -44,29 +47,67 @@ int32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLi
     // Create DIB thing
     RECT client_rect = {0};
     GetClientRect(hwnd, &client_rect);
-    uint32 width  = client_rect.right - client_rect.left;
-    uint32 height = client_rect.bottom - client_rect.top;
+    u32 width  = client_rect.right - client_rect.left;
+    u32 height = client_rect.bottom - client_rect.top;
     
     bitmap_info.bmiHeader.biSize = sizeof(bitmap_info.bmiHeader);
     bitmap_info.bmiHeader.biWidth = width;
-    bitmap_info.bmiHeader.biHeight = -(int)height; // for topdown upper-left pixel order
+    bitmap_info.bmiHeader.biHeight = height;
     bitmap_info.bmiHeader.biPlanes = 1;
     bitmap_info.bmiHeader.biBitCount = 32;
     bitmap_info.bmiHeader.biCompression = BI_RGB;
 
-    uint32 pixel_count = width * height;
+    u32 pixel_count = width * height;
     bitmap_memory = VirtualAlloc(NULL, pixel_count * 4, MEM_COMMIT, PAGE_READWRITE);
 
+    Vec3 ro = {0,0,-1.0f};
+    Vec3 s  = {0,0,5};
+    float radius = 2;
+    Vec3 resolution = { (float)width, (float)height, 0 };
+
+    ((u32*)bitmap_memory)[0] = 0x00ff0000;
+    ((u32*)bitmap_memory)[1] = 0x00ff0000;
+    ((u32*)bitmap_memory)[2] = 0x00ff0000;
+    
+
+#if 1
     // fill pixels
-    uint8* row  = (uint8*)bitmap_memory;
-    uint32 pitch = width * 4;
-    for(uint32 y = 0; y < height; ++y) {
-        uint8* pixel = row;
-        for(uint32 x = 0; x < width; ++x) {
-            PUTPIXEL(255, 0, 0);
+    u8* row  = (u8*)bitmap_memory;
+    u32 pitch = width * 4;
+    for(u32 y = 0; y < height; ++y) {
+        u8* pixel = row;
+        for(u32 x = 0; x < width; ++x) {
+            Vec3 uv = { (float)x/resolution.x, (float)y/resolution.y, 0 };
+            uv.x -= 0.5f;
+            uv.x *= resolution.x/resolution.y;
+            uv.y -= 0.5f;
+            
+            Vec3 col = {0, 0, 0};
+            Vec3 rd = (uv - ro).Normalized();
+            Vec3  p = ro + abs((s - ro).Dot(rd)) * rd;
+            f32 d = (p - s).SqrLength();
+            
+            if(d < radius * radius) {
+                // hit
+                f32 rad = p.Length() - sqrtf(radius*radius - d);
+                Vec3  t   = ro + rad*rd;
+                Vec3 n = (t-s).Normalized();
+
+                col = n;
+            }
+            else {
+                // miss
+            }
+
+            col.x = max(0, col.x);
+            col.y = max(0, col.y);
+            col.z = max(0, col.z);
+            col *= 255;
+            PUTPIXEL(col.x, col.y, col.z);
         }
         row += pitch;
     }
+#endif
     
     MSG msg = {0};
     while (GetMessage(&msg, NULL, 0, 0) > 0) {
@@ -87,8 +128,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
     {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hwnd, &ps);
-        const uint32 X = ps.rcPaint.right;
-        const uint32 Y = ps.rcPaint.bottom;
+        const u32 X = ps.rcPaint.right;
+        const u32 Y = ps.rcPaint.bottom;
         Win32UpdateWindow(hdc, 0, 0, X, Y);
 
         EndPaint(hwnd, &ps);

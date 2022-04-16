@@ -1,20 +1,20 @@
 #pragma once
 
 // Unsigned int types.
-typedef unsigned char      uint8;
-typedef unsigned short     uint16;
-typedef unsigned int       uint32;
-typedef unsigned long long uint64;
+typedef unsigned char      u8;
+typedef unsigned short     u16;
+typedef unsigned int       u32;
+typedef unsigned long long u64;
 
 // Signed int types.
-typedef signed char      int8;
-typedef signed short     int16;
-typedef signed int       int32;
-typedef signed long long int64;
+typedef signed char      s8;
+typedef signed short     s16;
+typedef signed int       s32;
+typedef signed long long s64;
 
 // Floating point types
-typedef float  float32;
-typedef double float64;
+typedef float  f32;
+typedef double f64;
 
 #define printfl(x) printf("%s\n", x)
 #define DebugLog(...) {                           \
