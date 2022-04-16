@@ -60,10 +60,10 @@ s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     u32 pixel_count = width * height;
     bitmap_memory = VirtualAlloc(NULL, pixel_count * 4, MEM_COMMIT, PAGE_READWRITE);
 
-    Vec3 ro = {0,0,-1.0f};
-    Vec3 s  = {0,0,5};
+    v3 ro = {0,0,-1.0f};
+    v3 s  = {0,0,5};
     float radius = 2;
-    Vec3 resolution = { (float)width, (float)height, 0 };
+    v3 resolution = { (float)width, (float)height, 0 };
 
     ((u32*)bitmap_memory)[0] = 0x00ff0000;
     ((u32*)bitmap_memory)[1] = 0x00ff0000;
@@ -77,21 +77,21 @@ s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     for(u32 y = 0; y < height; ++y) {
         u8* pixel = row;
         for(u32 x = 0; x < width; ++x) {
-            Vec3 uv = { (float)x/resolution.x, (float)y/resolution.y, 0 };
+            v3 uv = { (float)x/resolution.x, (float)y/resolution.y, 0 };
             uv.x -= 0.5f;
             uv.x *= resolution.x/resolution.y;
             uv.y -= 0.5f;
             
-            Vec3 col = {0, 0, 0};
-            Vec3 rd = (uv - ro).Normalized();
-            Vec3  p = ro + abs((s - ro).Dot(rd)) * rd;
+            v3 col = {0, 0, 0};
+            v3 rd = (uv - ro).Normalized();
+            v3  p = ro + abs((s - ro).Dot(rd)) * rd;
             f32 d = (p - s).SqrLength();
             
             if(d < radius * radius) {
                 // hit
                 f32 rad = p.Length() - sqrtf(radius*radius - d);
-                Vec3  t   = ro + rad*rd;
-                Vec3 n = (t-s).Normalized();
+                v3  t   = ro + rad*rd;
+                v3 n = (t-s).Normalized();
 
                 col = n;
             }
