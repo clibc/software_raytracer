@@ -17,4 +17,8 @@ typedef float  float32;
 typedef double float64;
 
 #define printfl(x) printf("%s\n", x)
-#define DebugLog(x) OutputDebugStringW(L#x);
+#define DebugLog(...) {                           \
+        char str[256];                            \
+        sprintf_s(str, sizeof(str), __VA_ARGS__); \
+        OutputDebugStringA(str);                  \
+    }                                             \

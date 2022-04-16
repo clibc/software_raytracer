@@ -1,5 +1,16 @@
 #include "headers.h"
 
+#define PUTPIXEL(r, g, b) {                     \
+        *pixel = (uint8)b;                      \
+        ++pixel;                                \
+        *pixel = (uint8)g;                      \
+        ++pixel;                                \
+        *pixel = (uint8)r;                      \
+        ++pixel;                                \
+        *pixel = 0;                             \
+        ++pixel;                                \
+}
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 static BITMAPINFO bitmap_info;
@@ -14,25 +25,10 @@ void Win32UpdateWindow(HDC device_context,
                    bitmap_memory, &bitmap_info, DIB_RGB_COLORS, SRCCOPY);
 }
 
-void TestCode() {
-    vec3 v = vec3_make(2);
-    vec3 v1 = vec3_mulf(v, 3.0f);
-    vec3 mulv = vec3_mulv(v, v1);
-    vec3 divf = vec3_mulf(mulv, 0.5f);
-
-    vec3 add = vec3_addv(divf, mulv);
-    add = vec3_subf(add, 10.0f);
-    add = vec3_addf(add, 9.0f);
-    
-    int a = 32;
-}
-
 int32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
     (void)hPrevInstance;
     (void)pCmdLine;
 
-    TestCode();
-    
     char* name = "SoftRayTracer";
     WNDCLASS wc = {0};
     wc.lpfnWndProc = WindowProc;
@@ -40,9 +36,7 @@ int32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLi
     wc.lpszClassName = name;
     RegisterClass(&wc);
     
-    HWND hwnd = CreateWindowEx(0, name, name, WS_OVERLAPPEDWINDOW,CW_USEDEFAULT, CW_USEDEFAULT, 800, 460, NULL, NULL, hInstance, NULL);
-
-    printfl("Some bullshit");
+    HWND hwnd = CreateWindowEx(0, name, name, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 800, 460, NULL, NULL, hInstance, NULL);
     
     if (hwnd == NULL) return 0;
     ShowWindow(hwnd, nCmdShow);
@@ -50,7 +44,6 @@ int32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLi
     // Create DIB thing
     RECT client_rect = {0};
     GetClientRect(hwnd, &client_rect);
-    
     uint32 width  = client_rect.right - client_rect.left;
     uint32 height = client_rect.bottom - client_rect.top;
     
@@ -70,14 +63,7 @@ int32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLi
     for(uint32 y = 0; y < height; ++y) {
         uint8* pixel = row;
         for(uint32 x = 0; x < width; ++x) {
-            *pixel = 0;
-            ++pixel;
-            *pixel = (uint8)((float)(((float)x/(float)width)*100.0f));
-            ++pixel;
-            *pixel = 0;
-            ++pixel;
-            *pixel = 0;
-            ++pixel;
+            PUTPIXEL(255, 0, 0);
         }
         row += pitch;
     }
