@@ -5,7 +5,7 @@ struct v3 {
 
     float Dot(v3 a)   const;
     v3  Cross(v3 a) const;
-    v3  Normalized()  const;
+    v3  Normalize()  const;
     float Length()      const;
     float SqrLength()   const;
     
@@ -44,8 +44,13 @@ v3 v3::Cross(v3 a) const {
     return r;
 }
 
-v3 v3::Normalized() const {
-    return *this / sqrtf(x*x + y*y + z*z);
+v3 v3::Normalize() const {
+    v3 res = {0,0,0};
+    float length = sqrtf(x*x + y*y + z*z);
+    if(length != 0) {
+        res = *this * (1.0f / length);
+    }
+    return res;
 }
 
 float v3::Length() const {

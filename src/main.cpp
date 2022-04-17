@@ -1,14 +1,14 @@
 #include "headers.h"
 
-#define WINDOW_WIDTH  1280
-#define WINDOW_HEIGHT 720
+#define WINDOW_WIDTH  800
+#define WINDOW_HEIGHT 600
 
 #define PUTPIXEL(r, g, b) {                     \
-        *pixel = (u8)b;                      \
+        *pixel = (u8)b;                        \
         ++pixel;                                \
-        *pixel = (u8)g;                      \
+        *pixel = (u8)g;                        \
         ++pixel;                                \
-        *pixel = (u8)r;                      \
+        *pixel = (u8)r;                        \
         ++pixel;                                \
         *pixel = 0;                             \
         ++pixel;                                \
@@ -60,45 +60,24 @@ s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     u32 pixel_count = width * height;
     bitmap_memory = VirtualAlloc(NULL, pixel_count * 4, MEM_COMMIT, PAGE_READWRITE);
 
-    v3 ro = {0,0,-1.0f};
-    v3 s  = {0,0,5};
-    float radius = 2;
+    v3 ro = {1,0,-1.0f};
+    ro.Normalize();
     v3 resolution = { (float)width, (float)height, 0 };
 
-    ((u32*)bitmap_memory)[0] = 0x00ff0000;
-    ((u32*)bitmap_memory)[1] = 0x00ff0000;
-    ((u32*)bitmap_memory)[2] = 0x00ff0000;
-    
-
-#if 1
     // fill pixels
     u8* row  = (u8*)bitmap_memory;
     u32 pitch = width * 4;
     for(u32 y = 0; y < height; ++y) {
         u8* pixel = row;
         for(u32 x = 0; x < width; ++x) {
-            v3 uv = { (float)x/resolution.x, (float)y/resolution.y, 0 };
+            v3 uv = { (f32)x/resolution.x, (f32)y/resolution.y, 0 };
             uv.x -= 0.5f;
             uv.x *= resolution.x/resolution.y;
             uv.y -= 0.5f;
             
-            v3 col = {0, 0, 0};
-            v3 rd = (uv - ro).Normalized();
-            v3  p = ro + abs((s - ro).Dot(rd)) * rd;
-            f32 d = (p - s).SqrLength();
+            v3 rd = (uv - ro).Normalize();
+            v3 col = RaycastWorld(ro, rd);
             
-            if(d < radius * radius) {
-                // hit
-                f32 rad = p.Length() - sqrtf(radius*radius - d);
-                v3  t   = ro + rad*rd;
-                v3 n = (t-s).Normalized();
-
-                col = n;
-            }
-            else {
-                // miss
-            }
-
             col.x = max(0, col.x);
             col.y = max(0, col.y);
             col.z = max(0, col.z);
@@ -107,8 +86,7 @@ s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         }
         row += pitch;
     }
-#endif
-    
+
     MSG msg = {0};
     while (GetMessage(&msg, NULL, 0, 0) > 0) {
         TranslateMessage(&msg);
