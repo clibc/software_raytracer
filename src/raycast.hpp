@@ -39,7 +39,7 @@ v3 RaycastPlane(v3 ro, v3 rd, v3 n, f32 d) {
 v3 RaycastWorld(v3 ro, v3 rd) {
     v3 col;
 
-    v3 SpherePos = {-3, 0, 5};
+    v3 SpherePos =  {0, 0, 5};
     f32 SphereRadius = 1.0f;
     col = RaycastSphere(ro, rd, SpherePos, SphereRadius);
     //col = RaycastPlane(ro, rd, {0, 1,0}, 100);
