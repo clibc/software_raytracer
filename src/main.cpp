@@ -60,8 +60,13 @@ s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     u32 pixel_count = width * height;
     bitmap_memory = VirtualAlloc(NULL, pixel_count * 4, MEM_COMMIT, PAGE_READWRITE);
 
-    v3 ro = {1,0,-1.0f};
-    ro.Normalize();
+    v3 CameraLookat = {0, 0, 5};
+    v3 CameraPos    = {-2, 5, -1};
+
+    v3 CameraZ = (CameraPos - CameraLookat).Normalize();
+    v3 CameraX = CameraZ.Cross({0,1,0}).Normalize();
+    v3 CameraY = CameraX.Cross(CameraZ).Normalize();
+    
     v3 resolution = { (float)width, (float)height, 0 };
 
     // fill pixels
@@ -75,8 +80,8 @@ s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
             uv.x *= resolution.x/resolution.y;
             uv.y -= 0.5f;
             
-            v3 rd = (uv - ro).Normalize();
-            v3 col = RaycastWorld(ro, rd);
+            v3 rd = (uv - CameraPos).Normalize();
+            v3 col = RaycastWorld(CameraPos, rd);
             
             col.x = max(0, col.x);
             col.y = max(0, col.y);
