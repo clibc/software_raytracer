@@ -4,11 +4,11 @@
 #define WINDOW_HEIGHT 600
 
 #define PUTPIXEL(r, g, b) {                     \
-        *pixel = (u8)b;                        \
+        *pixel = (u8)b;                         \
         ++pixel;                                \
-        *pixel = (u8)g;                        \
+        *pixel = (u8)g;                         \
         ++pixel;                                \
-        *pixel = (u8)r;                        \
+        *pixel = (u8)r;                         \
         ++pixel;                                \
         *pixel = 0;                             \
         ++pixel;                                \
@@ -26,6 +26,25 @@ void Win32UpdateWindow(HDC device_context,
                    X, Y, width, height,
                    X, Y, width, height,
                    bitmap_memory, &bitmap_info, DIB_RGB_COLORS, SRCCOPY);
+}
+
+void test() {
+    m4 m = {};
+    
+    for(int i = 0; i < 16; ++i) {
+        m[i] = (float)i;
+    }
+
+    m4 m2 = {};
+
+    m2 = m;
+
+    v3 vec = {0,1,0};
+
+    v3 neeew = m2*vec;
+    
+    DebugLog("test %f", 0.0f);
+    return;
 }
 
 s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
@@ -60,6 +79,8 @@ s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     u32 pixel_count = width * height;
     bitmap_memory = VirtualAlloc(NULL, pixel_count * 4, MEM_COMMIT, PAGE_READWRITE);
 
+    test();
+    
     v3 CameraLookat = {0, 0, 5};
     v3 CameraPos    = {-4, 5, -1};
 
@@ -69,7 +90,6 @@ s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     const f32 FilmDistance = 2.0f;
     v3 FilmCenter = CameraPos - CameraZ * FilmDistance;
 
-    
     v3 resolution = { (float)width, (float)height, 0 };
     // fill pixels
     u8* row  = (u8*)bitmap_memory;
@@ -77,11 +97,10 @@ s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     for(u32 y = 0; y < height; ++y) {
         u8* pixel = row;
         for(u32 x = 0; x < width; ++x) {
-            v3 uv = { (f32)x/resolution.x, (f32)y/resolution.y, 0 };
+            v3 uv = { ((f32)x + 0.5f)/resolution.x, ((f32)y + 0.5f)/resolution.y, 0 };
             uv.x = (2.0f * uv.x - 1) * (resolution.x / resolution.y);
             uv.y = 1 - 2.0f * uv.y;
             v3 PixelCoord = FilmCenter + (CameraX * uv.x) + (CameraY * uv.y);
-
             
             v3 rd = (PixelCoord - CameraPos).Normalize();
             v3 col = RaycastWorld(CameraPos, rd);

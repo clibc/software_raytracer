@@ -6,6 +6,6 @@
 #include <cmath>
 
 #include "defines.h"
-#include "math/vector.hpp"
+#include "math.hpp"
 
 #include "raycast.hpp"
