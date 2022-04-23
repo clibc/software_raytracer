@@ -21,7 +21,7 @@ typedef double f64;
 #define F32Min FLT_MIN
 
 #define printfl(x) printf("%s\n", x)
-#define DebugLog(...) {                           \
+#define DebugLog(...) {                          \
         char str[256];                            \
         sprintf_s(str, sizeof(str), __VA_ARGS__); \
         OutputDebugStringA(str);                  \

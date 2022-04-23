@@ -1,7 +1,13 @@
 #pragma once
 
+#include <math.h>
+#include <cmath>
+
 struct v3 {
     float x,y,z;
+
+    v3(float, float, float);
+    v3() = default;
 
     inline float Dot(v3 a)     const;
     inline v3  Cross(v3 a)     const;
@@ -31,6 +37,12 @@ struct v3 {
 
     void Print();
 };
+
+v3::v3(float ix, float iy, float iz) {
+    x = ix;
+    y = iy;
+    z = iz;
+}
 
 inline float v3::Dot(v3 a) const {
     return x * a.x + y * a.y + z * a.z;
@@ -81,9 +93,17 @@ inline void v3::operator= (v3 a) { x = a.x; y = a.y; z = a.z; };
 
 inline v3 operator*(float a, v3 v) { return {v.x * a, v.y * a, v.z * a}; }
 
-void v3::Print() { DebugLog("Vec3(%f, %f, %f)\n", x, y, z); }
+void v3::Print() {
+#ifdef DebugLog
+    DebugLog("Vec3(%f, %f, %f)\n", x, y, z);
+#endif
+}
 
-struct m4 {
+// m0 m4 m8  m12
+// m1 m5 m9  m13
+// m2 m6 m10 m14
+// m3 m7 m11 m15
+struct m4 { // matrix4x4
     float values[16];
 
     static m4 Identity(float);
@@ -91,6 +111,10 @@ struct m4 {
     inline float& operator[](int);
     inline m4     operator*(m4 const&);
     inline v3     operator*(v3 const&) const;
+
+    inline void SetRow(int, float, float, float, float);
+    inline void SetColumn(int, float, float, float, float);
+    inline void Print();
 };
 
 inline m4 m4::Identity(float a = 1.0f) {
@@ -155,9 +179,39 @@ inline v3 m4::operator*(v3 const& a) const {
     v3 res = {};
     const float* o = &(this->values[0]);
     
-    res.x = o[0] * a.x + o[3] * a.y + o[9]  * a.z + o[13];
-    res.y = o[1] * a.x + o[4] * a.y + o[10] * a.z + o[14];
-    res.x = o[2] * a.x + o[5] * a.y + o[11] * a.z + o[15];
-    
+    res.x = o[0] * a.x + o[1] * a.y + o[2]  * a.z + o[3];
+    res.y = o[4] * a.x + o[5] * a.y + o[6]  * a.z + o[7];
+    res.z = o[8] * a.x + o[9] * a.y + o[10] * a.z + o[11];
+
     return res;
+}
+
+inline void m4::SetRow(int row, float a1, float a2, float a3, float a4) {
+    values[row + 0 * 4] = a1;
+    values[row + 1 * 4] = a2;
+    values[row + 2 * 4] = a3;
+    values[row + 3 * 4] = a4;
+}
+
+inline void m4::SetColumn(int column, float a1, float a2, float a3, float a4) {
+    values[column * 4 + 0] = a1;
+    values[column * 4 + 1] = a2;
+    values[column * 4 + 2] = a3;
+    values[column * 4 + 3] = a4;
+}
+
+inline void m4::Print() {
+#ifdef DebugLog
+    DebugLog("\nRow major:\n");
+    DebugLog("(%f, %f, %f, %f)\n", values[0], values[4], values[8],  values[12]); 
+    DebugLog("(%f, %f, %f, %f)\n", values[1], values[5], values[9],  values[13]); 
+    DebugLog("(%f, %f, %f, %f)\n", values[2], values[6], values[10], values[14]); 
+    DebugLog("(%f, %f, %f, %f)\n", values[3], values[7], values[11], values[15]); 
+    DebugLog("Column major:\n");
+    DebugLog("(%f, %f, %f, %f)\n", values[0], values[1], values[2],  values[3]); 
+    DebugLog("(%f, %f, %f, %f)\n", values[4], values[5], values[6],  values[7]); 
+    DebugLog("(%f, %f, %f, %f)\n", values[8], values[9], values[10], values[11]); 
+    DebugLog("(%f, %f, %f, %f)\n", values[12], values[13], values[14], values[15]); 
+    DebugLog("\n");
+#endif
 }

@@ -43,7 +43,8 @@ void test() {
 
     v3 neeew = m2*vec;
     
-    DebugLog("test %f", 0.0f);
+    
+//    DebugLog("test %f", 0.0f);
     return;
 }
 
@@ -81,14 +82,21 @@ s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
     test();
     
-    v3 CameraLookat = {0, 0, 5};
-    v3 CameraPos    = {-4, 5, -1};
+    v3 CameraLookat = v3(0,0,5);
+    v3 CameraPos    = {2, 5, -1};
 
     v3 CameraZ = (CameraPos - CameraLookat).Normalize();
     v3 CameraX = CameraZ.Cross({0,1,0}).Normalize();
     v3 CameraY = CameraX.Cross(CameraZ).Normalize();
     const f32 FilmDistance = 2.0f;
     v3 FilmCenter = CameraPos - CameraZ * FilmDistance;
+
+    m4 CameraToWorld = {};
+
+    CameraToWorld.SetRow(0, CameraX.x, CameraX.y, CameraX.z, 0);
+    CameraToWorld.SetRow(1, CameraY.x, CameraY.y, CameraY.z, 0);
+    CameraToWorld.SetRow(2, CameraZ.x, CameraZ.y, CameraZ.z, 0);
+    CameraToWorld.SetRow(3, CameraPos.x, CameraPos.y, CameraPos.z, 0);
 
     v3 resolution = { (float)width, (float)height, 0 };
     // fill pixels
@@ -100,7 +108,9 @@ s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
             v3 uv = { ((f32)x + 0.5f)/resolution.x, ((f32)y + 0.5f)/resolution.y, 0 };
             uv.x = (2.0f * uv.x - 1) * (resolution.x / resolution.y);
             uv.y = 1 - 2.0f * uv.y;
-            v3 PixelCoord = FilmCenter + (CameraX * uv.x) + (CameraY * uv.y);
+            uv.z = -2;
+            //v3 PixelCoord = FilmCenter + (CameraX * uv.x) + (CameraY * uv.y);
+            v3 PixelCoord = CameraToWorld * uv;
             
             v3 rd = (PixelCoord - CameraPos).Normalize();
             v3 col = RaycastWorld(CameraPos, rd);
