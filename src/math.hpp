@@ -99,6 +99,104 @@ void v3::Print() {
 #endif
 }
 
+struct v4 {
+    float x,y,z,w;
+    
+    v4(float, float, float, float);
+    v4(v3, float);
+    v4() = default;
+
+    inline float Dot(v4 a)     const;
+    inline v4  Normalize()     const;
+    inline float Length()      const;
+    inline float SqrLength()   const;
+    
+    inline v4 operator+(float) const;
+    inline v4 operator-(float) const;
+    inline v4 operator*(float) const;
+    inline v4 operator/(float) const;
+    inline void operator+=(float);
+    inline void operator-=(float);
+    inline void operator*=(float);
+    inline void operator/=(float);
+    inline v4 operator+(v4) const;
+    inline v4 operator-(v4) const;
+    inline v4 operator*(v4) const;
+    inline v4 operator/(v4) const;
+    inline void operator+=(v4);
+    inline void operator-=(v4);
+    inline void operator*=(v4);
+    inline void operator/=(v4);
+    inline void operator= (v4);
+
+    inline friend v4 operator*(float, v4);
+
+    void Print();
+};
+
+v4::v4(float ix, float iy, float iz, float iw) {
+    x = ix;
+    y = iy;
+    z = iz;
+    w = iw;
+}
+
+v4::v4(v3 v, float iw) {
+    x = v.x;
+    y = v.y;
+    z = v.z;
+    w = iw;
+}
+
+
+inline float v4::Dot(v4 a) const {
+    return x * a.x + y * a.y + z * a.z + w * a.w;
+}
+
+inline v4 v4::Normalize() const {
+    v4 res = {0,0,0,0};
+    float length = sqrtf(x*x + y*y + z*z + w*w);
+    if(length != 0) {
+        res = *this * (1.0f / length);
+    }
+    return res;
+}
+
+inline float v4::Length() const {
+    return sqrtf(x*x + y*y + z*z + w*w);
+}
+
+inline float v4::SqrLength() const {
+    return x*x + y*y + z*z + w*w;
+}
+
+inline v4 v4::operator+(float a) const { return { x + a, y + a, z + a, w + a }; }
+inline v4 v4::operator-(float a) const { return { x - a, y - a, z - a, w - a }; }
+inline v4 v4::operator*(float a) const { return { x * a, y * a, z * a, w * a }; }
+inline v4 v4::operator/(float a) const { return { x / a, y / a, z / a, w / a }; }
+inline void v4::operator+=(float a) { x += a; y += a; z += a; w += a; }
+inline void v4::operator-=(float a) { x -= a; y -= a; z -= a; w -= a; }
+inline void v4::operator*=(float a) { x *= a; y *= a; z *= a; w *= a; }
+inline void v4::operator/=(float a) { x /= a; y /= a; z /= a; w /= a; }
+inline v4 v4::operator+(v4 a) const { return { x + a.x, y + a.y, z + a.z, w + a.w }; }
+inline v4 v4::operator-(v4 a) const { return { x - a.x, y - a.y, z - a.z, w - a.w }; }
+inline v4 v4::operator*(v4 a) const { return { x * a.x, y * a.y, z * a.z, w * a.w }; }
+inline v4 v4::operator/(v4 a) const { return { x / a.x, y / a.y, z / a.z, w / a.w }; }
+inline void v4::operator+=(v4 a) { x += a.x; y += a.y; z += a.z, w += a.w; }
+inline void v4::operator-=(v4 a) { x -= a.x; y -= a.y; z -= a.z, w -= a.w; }
+inline void v4::operator*=(v4 a) { x *= a.x; y *= a.y; z *= a.z, w *= a.w; }
+inline void v4::operator/=(v4 a) { x /= a.x; y /= a.y; z /= a.z, w /= a.w; }
+inline void v4::operator= (v4 a) { x = a.x; y = a.y; z = a.z; w = a.w; };
+
+inline v4 operator*(float a, v4 v) { return {v.x * a, v.y * a, v.z * a, v.w * a}; }
+
+void v4::Print() {
+#ifdef DebugLog
+    DebugLog("Vec4(%f, %f, %f, %f)\n", x, y, z, w);
+#endif
+}
+
+
 // m0 m4 m8  m12
 // m1 m5 m9  m13
 // m2 m6 m10 m14
