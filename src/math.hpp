@@ -3,6 +3,10 @@
 #include <math.h>
 #include <cmath>
 
+float PowerF32(float x, float p) {
+    return pow(x, p);
+}
+
 struct v3 {
     float x,y,z;
 
@@ -196,7 +200,6 @@ void v4::Print() {
 #endif
 }
 
-
 // m0 m4 m8  m12
 // m1 m5 m9  m13
 // m2 m6 m10 m14
@@ -212,6 +215,8 @@ struct m4 { // matrix4x4
 
     inline void SetRow(int, float, float, float, float);
     inline void SetColumn(int, float, float, float, float);
+    inline m4 Inverse();
+    
     inline void Print();
 };
 
@@ -296,6 +301,56 @@ inline void m4::SetColumn(int column, float a1, float a2, float a3, float a4) {
     values[column * 4 + 1] = a2;
     values[column * 4 + 2] = a3;
     values[column * 4 + 3] = a4;
+}
+
+// https://semath.info/src/inverse-cofactor-ex4.html
+inline m4 m4::Inverse() {
+    m4 r = {0};
+    float* m = (float*)&(this->values[0]);
+    // calculate co-factors and determinant
+    float determinant = 0.0f;
+    float cofactors[16];
+    for(int i = 0; i < 16; ++i) {
+        float v[9];
+        int vcounter = 0;
+        int col = i % 4;
+        int row = i / 4;
+        for(int j = 0; j < 16; ++j) {
+            int scol = j % 4;
+            int srow = j / 4;
+            if(scol != row && srow != col) { // we flip row and column
+                v[vcounter++] = m[j];
+            };
+        }
+        float det = v[0] * v[4] * v[8] + v[3] * v[7] * v[2] + v[1] * v[5] * v[6] - v[6] * v[4] * v[2] - v[1] * v[3] * v[8] - v[7] * v[5] * v[0];
+        cofactors[i] = PowerF32(-1.0f, (float)(col + row + 2)) * det;
+
+        // so this is not same with the article I read
+        // https://semath.info/src/determinant-four-by-four.html
+        if(i < 4) {
+            if(i == 0) determinant = values[i * 4] * det;
+            else {
+                if((i % 2) == 0) determinant += values[i * 4] * det;
+                else determinant -= values[i * 4] * det;
+            }
+        }
+    }
+    // transpose matrix
+    // float adjoint[16];
+    // for(int i = 0; i < 4; ++i) {
+    //     for(int j = 0; j < 4; ++j) {
+    //         int row = i + j * 4;
+    //         int col = i * 4 + j;
+    //         adjoint[row] = cofactors[col];
+    //     }
+    // }
+    m4 inverse = {};
+    // 1.0f / determinant * adjoint
+    float OneOverDet = 1.0f / determinant;
+    for(int i = 0; i < 16; ++i) {
+        inverse[i] = cofactors[i] * OneOverDet;
+    }
+    return inverse;
 }
 
 inline void m4::Print() {
