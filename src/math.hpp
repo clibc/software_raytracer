@@ -306,7 +306,6 @@ inline void m4::SetColumn(int column, float a1, float a2, float a3, float a4) {
 
 // https://semath.info/src/inverse-cofactor-ex4.html
 inline m4 m4::Inverse() {
-    m4 r = {0};
     float* m = (float*)&(this->values[0]);
     // calculate co-factors and determinant
     float determinant = 0.0f;
