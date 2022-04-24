@@ -211,7 +211,7 @@ struct m4 { // matrix4x4
     inline void   operator=(m4 const&);
     inline float& operator[](int);
     inline m4     operator*(m4 const&);
-    inline v3     operator*(v3 const&) const;
+    inline v4     operator*(v4 const&) const;
 
     inline void SetRow(int, float, float, float, float);
     inline void SetColumn(int, float, float, float, float);
@@ -278,13 +278,14 @@ inline m4 m4::operator*(m4 const& a) {
     return res;
 }
 
-inline v3 m4::operator*(v3 const& a) const {
-    v3 res = {};
+inline v4 m4::operator*(v4 const& a) const {
+    v4 res = {};
     const float* o = &(this->values[0]);
     
-    res.x = o[0] * a.x + o[1] * a.y + o[2]  * a.z + o[3];
-    res.y = o[4] * a.x + o[5] * a.y + o[6]  * a.z + o[7];
-    res.z = o[8] * a.x + o[9] * a.y + o[10] * a.z + o[11];
+    res.x = o[0] * a.x + o[1] * a.y + o[2]  * a.z + o[3]  * a.w;
+    res.y = o[4] * a.x + o[5] * a.y + o[6]  * a.z + o[7]  * a.w;
+    res.z = o[8] * a.x + o[9] * a.y + o[10] * a.z + o[11] * a.w;
+    res.w = o[12] * a.x + o[13] * a.y + o[14] * a.z + o[15] * a.w;
 
     return res;
 }
@@ -344,6 +345,9 @@ inline m4 m4::Inverse() {
     //         adjoint[row] = cofactors[col];
     //     }
     // }
+    // if determinant is zero there is no inverse matrix
+    if(determinant == 0) return {0};
+
     m4 inverse = {};
     // 1.0f / determinant * adjoint
     float OneOverDet = 1.0f / determinant;

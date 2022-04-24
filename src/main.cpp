@@ -30,21 +30,18 @@ void Win32UpdateWindow(HDC device_context,
 
 void test() {
     m4 m = {};
+   
+    m.SetRow(0, 5, 4, 8, -4);
+    m.SetRow(1, -1, 2, -7, 8);
+    m.SetRow(2, -15, -10, 11, 120);
+    m.SetRow(3, -4, -5, 15, 9);
+
+    m4 inversed = m.Inverse();
+    inversed.Print();
+
+    m4 identity = inversed * m;
+    identity.Print();
     
-    for(int i = 0; i < 16; ++i) {
-        m[i] = (float)i;
-    }
-
-    m4 m2 = {};
-
-    m2 = m;
-
-    v3 vec = {0,1,0};
-
-    v3 neeew = m2*vec;
-    
-    
-//    DebugLog("test %f", 0.0f);
     return;
 }
 
@@ -96,10 +93,18 @@ s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     CameraToWorld.SetRow(0, CameraX.x, CameraX.y, CameraX.z, 0);
     CameraToWorld.SetRow(1, CameraY.x, CameraY.y, CameraY.z, 0);
     CameraToWorld.SetRow(2, CameraZ.x, CameraZ.y, CameraZ.z, 0);
-    CameraToWorld.SetRow(3, CameraPos.x, CameraPos.y, CameraPos.z, 0);
+    CameraToWorld.SetRow(3, CameraPos.x, CameraPos.y, CameraPos.z, 1);
 
+    CameraToWorld.Inverse().Print();
+    
+    v3 LocalPoint = {1, 2, 0};
+    v4 WorldPoint = CameraToWorld * v4(LocalPoint, 1.0f);
+    WorldPoint.w  = 1;
+    
+    v4 LocalPoint2 = CameraToWorld.Inverse() * WorldPoint;
+    
+    
     v3 resolution = { (float)width, (float)height, 0 };
-    // fill pixels
     u8* row  = (u8*)bitmap_memory;
     u32 pitch = width * 4;
     for(u32 y = 0; y < height; ++y) {
@@ -109,8 +114,8 @@ s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
             uv.x = (2.0f * uv.x - 1) * (resolution.x / resolution.y);
             uv.y = 1 - 2.0f * uv.y;
             uv.z = -2;
-            //v3 PixelCoord = FilmCenter + (CameraX * uv.x) + (CameraY * uv.y);
-            v3 PixelCoord = CameraToWorld * uv;
+            v4 PixelWorld = CameraToWorld * v4(uv, 1.0f);
+            v3 PixelCoord = v3(PixelWorld.x, PixelWorld.y, PixelWorld.z);
             
             v3 rd = (PixelCoord - CameraPos).Normalize();
             v3 col = RaycastWorld(CameraPos, rd);
