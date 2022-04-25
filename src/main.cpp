@@ -82,11 +82,9 @@ s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     v3 CameraLookat = v3(0,0,5);
     v3 CameraPos    = {2, 5, -1};
 
-    v3 CameraZ = (CameraPos - CameraLookat).Normalize();
-    v3 CameraX = CameraZ.Cross({0,1,0}).Normalize();
-    v3 CameraY = CameraX.Cross(CameraZ).Normalize();
-    const f32 FilmDistance = 2.0f;
-    v3 FilmCenter = CameraPos - CameraZ * FilmDistance;
+    v3 CameraZ = (CameraLookat - CameraPos).Normalize();
+    v3 CameraX = ((v3(0,1,0)).Cross(CameraZ)).Normalize();
+    v3 CameraY = CameraZ.Cross(CameraX).Normalize();
 
     m4 CameraToWorld = {};
 
@@ -112,8 +110,8 @@ s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         for(u32 x = 0; x < width; ++x) {
             v3 uv = { ((f32)x + 0.5f)/resolution.x, ((f32)y + 0.5f)/resolution.y, 0 };
             uv.x = (2.0f * uv.x - 1) * (resolution.x / resolution.y);
-            uv.y = 1 - 2.0f * uv.y;
-            uv.z = -2;
+            uv.y = 2.0f * uv.y - 1;
+            uv.z = 1;
             v4 PixelWorld = CameraToWorld * v4(uv, 1.0f);
             v3 PixelCoord = v3(PixelWorld.x, PixelWorld.y, PixelWorld.z);
             
