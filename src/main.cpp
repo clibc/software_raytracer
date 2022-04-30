@@ -1,7 +1,7 @@
 #include "headers.h"
 
 #define WINDOW_WIDTH  800
-#define WINDOW_HEIGHT 600
+#define WINDOW_HEIGHT 500
 
 #define PUTPIXEL(r, g, b) {                     \
         *pixel = (u8)b;                         \
@@ -26,23 +26,6 @@ void Win32UpdateWindow(HDC device_context,
                    X, Y, width, height,
                    X, Y, width, height,
                    bitmap_memory, &bitmap_info, DIB_RGB_COLORS, SRCCOPY);
-}
-
-void test() {
-    m4 m = {};
-   
-    m.SetRow(0, 5, 4, 8, -4);
-    m.SetRow(1, -1, 2, -7, 8);
-    m.SetRow(2, -15, -10, 11, 120);
-    m.SetRow(3, -4, -5, 15, 9);
-
-    m4 inversed = m.Inverse();
-    inversed.Print();
-
-    m4 identity = inversed * m;
-    identity.Print();
-    
-    return;
 }
 
 s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
@@ -77,10 +60,8 @@ s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     u32 pixel_count = width * height;
     bitmap_memory = VirtualAlloc(NULL, pixel_count * 4, MEM_COMMIT, PAGE_READWRITE);
 
-    test();
-    
-    v3 CameraLookat = v3(0,0,5);
-    v3 CameraPos    = {2, 5, -1};
+    v3 CameraLookat = v3(0, 0, 5);
+    v3 CameraPos    = {0, 1, -1};//{2, 1, -1};
 
     v3 CameraZ = (CameraLookat - CameraPos).Normalize();
     v3 CameraX = ((v3(0,1,0)).Cross(CameraZ)).Normalize();
@@ -95,13 +76,46 @@ s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
     CameraToWorld.Inverse().Print();
     
-    v3 LocalPoint = {1, 2, 0};
-    v4 WorldPoint = CameraToWorld * v4(LocalPoint, 1.0f);
-    WorldPoint.w  = 1;
-    
-    v4 LocalPoint2 = CameraToWorld.Inverse() * WorldPoint;
-    
-    
+    world.spheres   = (Sphere*)VirtualAlloc(NULL, MAX_OBJECT_COUNT * sizeof(Sphere), MEM_COMMIT, PAGE_READWRITE);
+    world.planes   = (Plane*)VirtualAlloc(NULL, MAX_OBJECT_COUNT * sizeof(Plane), MEM_COMMIT, PAGE_READWRITE);
+    world.materials = (Material*)VirtualAlloc(NULL, MAX_OBJECT_COUNT * sizeof(Material), MEM_COMMIT, PAGE_READWRITE);
+    world.positions  = (v3*)VirtualAlloc(NULL, MAX_OBJECT_COUNT * sizeof(v3), MEM_COMMIT, PAGE_READWRITE);
+
+    Sphere sphere;
+    sphere.position = 0;
+    sphere.material = 0;
+    sphere.radius   = 1.0f;
+    Plane plane;
+    plane.position = 1;
+    plane.material = 1;
+    plane.normal   = v3(0, 1, 0);
+    plane.offset   = 0.0f;
+    Sphere sphere2;
+    sphere2.position = 1;
+    sphere2.material = 0;
+    sphere2.radius   = 3.0f;
+    Sphere sphere3;
+    sphere3.position = 2;
+    sphere3.material = 0;
+    sphere3.radius   = 2.0f;
+
+    Material m0;
+    Material m1;
+    m0.color = v3(1, 0, 1);
+    m1.color = v3(1, 1, 0);
+
+    world.sphere_count = 3;
+    world.plane_count  = 1;
+    world.positions[0] = v3(-3, 1, 5);
+    world.positions[1] = v3(5, 1, 5);
+    world.positions[2] = v3(0, -1, 2);
+    world.materials[0] = m0;
+    world.materials[1] = m1;
+    world.spheres[0] = sphere;
+    world.spheres[1] = sphere2;
+    world.spheres[2] = sphere3;
+    world.planes[0] = plane;
+
     v3 resolution = { (float)width, (float)height, 0 };
     u8* row  = (u8*)bitmap_memory;
     u32 pitch = width * 4;
@@ -112,6 +126,7 @@ s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
             uv.x = (2.0f * uv.x - 1) * (resolution.x / resolution.y);
             uv.y = 2.0f * uv.y - 1;
             uv.z = 1;
+
             v4 PixelWorld = CameraToWorld * v4(uv, 1.0f);
             v3 PixelCoord = v3(PixelWorld.x, PixelWorld.y, PixelWorld.z);
             

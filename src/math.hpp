@@ -2,9 +2,14 @@
 
 #include <math.h>
 #include <cmath>
+#include <stdlib.h> // for rand()
 
 float PowerF32(float x, float p) {
     return pow(x, p);
+}
+
+float Rand01() {
+    return (float)rand() / (float)RAND_MAX; 
 }
 
 struct v3 {
