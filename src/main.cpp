@@ -93,11 +93,11 @@ s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     Sphere sphere2;
     sphere2.position = 1;
     sphere2.material = 0;
-    sphere2.radius   = 3.0f;
+    sphere2.radius   = 2.0f;
     Sphere sphere3;
     sphere3.position = 2;
     sphere3.material = 0;
-    sphere3.radius   = 2.0f;
+    sphere3.radius   = 3.0f;
 
     Material m0;
     Material m1;
@@ -106,9 +106,9 @@ s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
     world.sphere_count = 3;
     world.plane_count  = 1;
-    world.positions[0] = v3(-3, 1, 5);
-    world.positions[1] = v3(5, 1, 5);
-    world.positions[2] = v3(0, -1, 2);
+    world.positions[0] = v3(-5, 1, 5);
+    world.positions[1] = v3(-2, 1, 5);
+    world.positions[2] = v3(3, 2, 5);
     world.materials[0] = m0;
     world.materials[1] = m1;
     world.spheres[0] = sphere;
@@ -132,10 +132,15 @@ s32 WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
             
             v3 rd = (PixelCoord - CameraPos).Normalize();
             v3 col = RaycastWorld(CameraPos, rd);
+
+            col.x = sqrtf(col.x);
+            col.y = sqrtf(col.y);
+            col.z = sqrtf(col.z);
+
             
-            col.x = max(0, col.x);
-            col.y = max(0, col.y);
-            col.z = max(0, col.z);
+            col.x = Clamp(col.x, 0.0f, 1.0f);
+            col.y = Clamp(col.y, 0.0f, 1.0f);
+            col.z = Clamp(col.z, 0.0f, 1.0f);
             col *= 255;
             PUTPIXEL(col.x, col.y, col.z);
         }

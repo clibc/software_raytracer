@@ -4,13 +4,7 @@
 #include <cmath>
 #include <stdlib.h> // for rand()
 
-float PowerF32(float x, float p) {
-    return pow(x, p);
-}
-
-float Rand01() {
-    return (float)rand() / (float)RAND_MAX; 
-}
+static inline float PowerF32(float, float);
 
 struct v3 {
     float x,y,z;
@@ -375,4 +369,22 @@ inline void m4::Print() {
     DebugLog("(%f, %f, %f, %f)\n", values[12], values[13], values[14], values[15]); 
     DebugLog("\n");
 #endif
+}
+
+static inline float PowerF32(float x, float p) {
+    return pow(x, p);
+}
+
+static inline float Rand01() {
+    return (float)rand() / (float)RAND_MAX; 
+}
+
+static inline float Clamp(float x, float min, float max) {
+    if (x < min) return min;
+    if (x > max) return max;
+    return x;
+}
+
+static inline v3 Reflect(v3 d, v3 n) {
+    return d - (2*(d.Dot(n))*n);
 }

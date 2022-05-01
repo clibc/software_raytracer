@@ -57,14 +57,6 @@ Hit RaycastSphere(v3 ro, v3 rd, v3 s, f32 radius) {
         hit.point = t;
         hit.normal = n;
         hit.distance = rad;
-        v3 scol = {};
-        
-        for(int i = 0; i < 5; ++i) {
-            scol += RaycastWorld(t, n);
-        }
-
-        hit.color += scol / 5.0f;
-        hit.color /= 2.0f;
     }
 
     return hit;
@@ -87,6 +79,28 @@ Hit RaycastPlane(v3 ro, v3 rd, v3 n, f32 d) {
     return hit;
 }
 
+Hit RaycastWorldFirstHit(v3 ro, v3 rd) {
+    Hit hit_g;
+    hit_g.distance = -1;
+    for(u32 i = 0; i < world.sphere_count; ++i) {
+        Sphere s = world.spheres[i];
+        Hit hit = RaycastSphere(ro, rd, world.positions[s.position], s.radius);
+        if(hit.distance > 0) {
+            return hit;
+        }
+    }
+
+    for(u32 i = 0; i < world.plane_count; ++i) {
+        Plane p = world.planes[i];
+        Hit hit = RaycastPlane(ro, rd, p.normal, p.offset);
+        if(hit.distance > 0) {
+            return hit;
+        }
+    }
+
+    return hit_g;
+}
+
 v3 RaycastWorld(v3 ro, v3 rd) {
     v3 col = {};
     f32 distance = FLT_MAX - 100;
@@ -99,8 +113,19 @@ v3 RaycastWorld(v3 ro, v3 rd) {
             col = hit.color;
             distance = hit.distance;
 
-            col += hit.normal.Dot(light_dir);
-            col *= 0.5f;
+            v3 col2 = {};
+            v3 new_ro = hit.point;
+            v3 new_rd = Reflect(rd, hit.normal).Normalize();
+            for(int j = 0; j < 5; j++) {
+                Hit res =  RaycastWorldFirstHit(new_ro, new_rd);
+                if(res.distance > 0) {
+                    col2 += res.color;
+                    new_ro = res.point;
+                    new_rd = Reflect(new_rd, res.normal).Normalize();
+                }
+            }
+            col += col2/5;
+            
         }
     }
 
